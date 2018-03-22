@@ -6,51 +6,79 @@
 	- client-side is quick and easy
 	- but trusts browser/mobile and server cannot make API calls for user
 
-- Flow 2: server side, server obtains the token on behalf of user (user can revoke)
+- Flow 2: server side, server obtains the token on behalf of user
+	- user can revoke
 	- server-side is more powerful
-	- but server now responsible for implementing session tracking for users
+	- but server is now responsible for implementing session tracking for users
 	- secure storage and access tokens
 
-- G+ hybridized flow: authent on client, but server makes API calls for client 
+- G+ hybridized flow: authentication on client, server makes API calls for client 
 	- https://developers.google.com/identity/protocols/OAuth2#scenarios
-	- even if hack access code btwn server & G, can't do stuff w/o "client secret"
+	- even if hack access code btwn server & G, can't do stuff without "client secret"
 
 ## Get initial app running
 
-- CLONED REPO gives me trouble.
+- the restaurant menu app that I developed for FSF
+- [starter code](https://github.com/udacity/OAuth2.0) for getting it running
+	- Git, VirtualBox, Vagrant
+	- running the app on your virtual machine
+
+- problem: cloned repo gives me trouble
 	- I can clone, bring up vagrant, ssh in and navigate to the oauth directory
 	- I can see all the listed py files there
 	- I can run the db create and the db populate scripts just fine
 	- I can run the project startup script just fine
 	- when I navigate to the localhost port I see nothing
 		- issue continues when I change project py and copy/paste e.g. localhost:8020
-- USE my FoodBase project instead! It works just fine.
-	- it's in a separate udacity-fullstack folder
-	- navigate to vagrant/, vagrant up, vagrant ssh, then to /vagrant/finalProject
+
+- solution: I'm using my original FoodBase project instead
+	- I had kept it in a separate `udacity-fullstack/` folder
+	- I'm navigating to `vagrant/`, `vagrant up`, `vagrant ssh`, then to that project directory
 	- now let's implement oauth on this thing!
 
-## Steps
+## Overview of steps within this lesson
 
-1. setup to communicate with API library at console.developers.google.com
+1. obtain OAuth credentials from https://console.developers.google.com/apis
+	- steps 1-2 below
+2. create an anti-forgery state token in the app logic
+	- step 3 below
+3. create a login page with a span tag with data attributes for the response and render that `login.html`
+	- steps 4-8
+4. add callback to accept one-time code at end of `login.html`
+	- step 9 below
+	- G will send access token for our app and 1-time code for client browser
+5. write `gconnect` function for handling connect logic and setting up login session object in our app
+	- steps 10-14
+6. write `gdisconnect` function for revoking user token and resetting login session object
+	- step 15 below
+7. protect create/edit/delete routes with guard clauses that redirect user to `login`
+	- step 16 below
+
+## Detailed steps to implement in my Flask app
+
+1. setup to communicate with API library at https://console.developers.google.com
 	- create new project
 	- API > credentials
 	- create new client id
 	- now have "Client ID", "Client secret" and "Creation date"
+
 2. Configure local version of code to work
 	- Edit Client Settings
 	- find Authorized JS Origins
 	- add localhost:port (where port is the 4 ints you're using)
 	- if you're also using the IP version (0.0....), this needs added as well
+
 3. Use client ID and secret to add OAuth to app
 	- Anti-Forgery State Tokens
 	- make sure that the user is actually the one doing a request
 	- unique session token that client side returns alongside authorization token
-	- in later steps, verify this unique session token w server on all reqs
+	- in later steps, verify this unique session token with server on all reqs
+
 4. imports for Login Session in Flask app
 	- Python imports at top of Flask view
 ```
-from flask import session as login_session 	# this is a dict
-import random, string 	# to create pseudorandom string for each session
+from flask import session as login_session 	# dict
+import random, string 	# pseudorandom string for each session
 ```
 
 5. create showLogin that makes the state var (32 chars, mix uppercase + digits)
@@ -63,7 +91,7 @@ def showLogin():
 	return "Current session state: %s" % login_session['state']
 ```
 - for x-site request forgery, attacker would have to guess this code to make a request on user's behalf
-- later, we'll check to make sure user and login session have same state val
+- later we'll check to make sure user and login session have same state values
 
 6. Make an actual button user can click to login
 - create new login template in project templates folder
@@ -88,22 +116,26 @@ def showLogin():
 		</div>
 		<div id = "result"></div>
 ```
-- `data-scope` : which G resources we want to be able to access. Compare the documentation to see kind of info you'll get in res obj (e.g. name, email, ...)
+- `data-scope` : which G resources we want to be able to access
+	- compare the documentation to see kind of info you'll get in res obj (e.g. name, email)
 	- should read `"openid email"` to retrieve a user's email
 - `data-clientid` : the client id value generated when creating project at console.developers.google.com
 - `data-redirecturi` : sends a post messg, enabling one-time use codeflow
 - `data-accesstype` : do you want to send api calls even if user not logged in?
-- `data-cookiepolicy` : scope of uri that can access cookie. Single origin if just one host name and no subdomains.
+- `data-cookiepolicy` : scope of uri that can access cookie
+	- single origin if just one host name and no subdomains
 - `data-callback` : the cb to pass onetime use code and access token if user grants access to profile data
-- `data-approvalprompt` : user must login each time visit the login page (no check for already logged in). *Debug friendly, but disable in production!*
+- `data-approvalprompt` : user must login each time visit the login page
+	- no check for already logged in
+	- *Debug friendly, but disable in production!*
 
 7. Change views.py login to render the login template
 ```
 	return render_template ('login.html') 	 # but .php in my example
 ```
 
-8. Bring Vagrant up, run the server and test the `/login` endpoint!
-- Nothing interesting happens upon logging in... yet.
+8. Bring Vagrant up, run the server and test the `/login` endpoint
+- nothing interesting happens upon logging in yet
 
 9. Callback method to handle response sent to client
 - remember flow: user authenticates -> G sends response to CB
@@ -150,7 +182,7 @@ def showLogin():
 ```
 # create flow obj from json client id, client secret and other OAuth2 params
 # This json-formatted file stores client id, client secret and other Oauth params
-# For G, these are params we got w created app in console.developers.google.com,
+# For G, these are params we got with created app in console.developers.google.com,
 # and the JSON file is the client secret file dl under that app at that G acct
 from oauth2client.client import flow_from_clientsecrets
 

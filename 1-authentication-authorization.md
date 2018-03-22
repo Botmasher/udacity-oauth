@@ -47,7 +47,8 @@
 	- dropbox and drive allow sharing links without authenticating an ID
 	- bash login as root rather than a particular user (this why often disallowed)
 		- root is the user that authenticates and logs in registered users
-	- authorization cookies once been authenticated. If steal, authrz without authnt
+	- authorization cookies once been authenticated.
+		- if steal, authorize without authenticate
 		- that's called "Session Hijacking"
 		- cookies as codes that allow browser to access data, reuse without login
 

@@ -10,11 +10,13 @@
 	- `login_session[]`
 	- `createUser()`
 
+## Steps for implementing inside my Flask app
+
 1. User table
-- name string
-- email string
-- picture string
-- id integer
+	- name string
+	- email string
+	- picture string
+	- id integer
 
 2. Modify `Restaurant` and `MenuItem` classes to include `user_id`
 	- in SQLAlchemy, add as foreign key
@@ -32,7 +34,6 @@
 		return {
 			'id': self.id,
 			...
-			...
 			'user': self.user
 		}
 ```
@@ -43,8 +44,7 @@
 from models import Base, Restaurant, MenuItem, User
 ```
 
-4. Add user create and get info methods
-
+4. Add functions to create and get user info
 ```
 	def createUser(login_session):
 		newUser = User(name=login_session['username'],picture=login_session['picture'])
@@ -65,7 +65,7 @@ from models import Base, Restaurant, MenuItem, User
 			return None
 ```
 
-5. Now whenever you create new restaurant or menuItem, pass user_id too
+5. Now whenever you create a new `restaurant` or `menuItem`, pass `user_id` too
 ```
 	# or whatever your route and method is
 	@app.route('/restaurants/new/')
@@ -94,14 +94,15 @@ from models import Base, Restaurant, MenuItem, User
 ```
 
 10. Protect menu and restaurant add/edit/delete functions
-		
-		// do not show the links on page to non-logged-in users
-		if 'username' in login_session and login_session['user_id']==m.userId:
-			output += '<a href="%s">edit</a>' % (url_for('update',...))
+```
+	// do not show the links on page to non-logged-in users
+	if 'username' in login_session and login_session['user_id']==m.userId:
+		output += '<a href="%s">edit</a>' % (url_for('update',...))
 
-		// keep users from being able to post data they do not have access to through url 
-		// this example uses a JS alert and was added to my update and delete methods
-		if login_session['user_id'] != session.query(Restaurant).filter_by(id=index).one().userId:
-			return '<script>function alertPermiss() {alert("Not authorized to update. Create a restaurant in order to update it.");}</script><body onload="alertPermiss=()">'
+	// keep users from being able to post data they do not have access to through url 
+	// this example uses a JS alert and was added to my update and delete methods
+	if login_session['user_id'] != session.query(Restaurant).filter_by(id=index).one().userId:
+		return '<script>function alertPermiss() {alert("Not authorized to update. Create a restaurant in order to update it.");}</script><body onload="alertPermiss=()">'
+```
 
-	(10.5) I had to go back through and repop my db, setup the forms page to work with user, and all pages to point to the new db since I renamed it to distinguish models from models with User added.
+11. I had to go back through and repopulate my db, set up the forms page to work with user, and all pages to point to the new db since I renamed it to distinguish models from models with User added.
