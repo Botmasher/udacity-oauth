@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+	{% if html is not None %}
+		<div>
+			
+		</div>
+	{% else %}
+		<div>{{content}}</div>		
+	{% endif %}
+{% endblock %}
