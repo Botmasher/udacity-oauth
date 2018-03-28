@@ -75,7 +75,6 @@
 	- we get an access token for 3600 secs, then get list of API calls we can use
 
 - Example OAuth 2.0 request (passing token)
-	
 ```	
 GET /userinfo/v2/me HTTP/1.1
 Host: www.googleapis.com
@@ -84,7 +83,6 @@ Authorization: Bearer ya29.Glv_AwrcSLMy-oMw1dbhS9HlH4o2E1FVsuGI3nTiamE86wfeYkQqg
 ```
 
 - Example OAuth 2.0 response
-	
 ```
 HTTP/1.1 200 OK
 Content-length: 212

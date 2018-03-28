@@ -1,11 +1,16 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-	{% if html is not None %}
-		<div>
-			
-		</div>
-	{% else %}
-		<div>{{content}}</div>		
-	{% endif %}
+	<div>
+		{% if content is defined %}
+			<div>{{content}}</div>
+		{% endif %}
+		{% if data is defined %}
+			<ul>
+				{% for entry in data %}
+					<li>{{entry.name}}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+	</div>
 {% endblock %}
