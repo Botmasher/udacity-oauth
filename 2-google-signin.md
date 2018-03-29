@@ -105,7 +105,7 @@ def showLogin():
 ```
 		<div id = "signinButton">
 			<span class = "g-signin"
-				data-scope = "openid"
+				data-scope = "openid email"
 				data-clientid = "YOUR CLIENT ID HERE"
 				data-redirecturi = "postmessage"
 				data-accesstype = "offline"
@@ -298,7 +298,7 @@ def gconnect():
 ```
 login_session['credentials'] = credentials.access_token
 ```
-- stopped storing email at least with these scopes (is this because of account settings or because of the scope?)
+- stopped storing email at least with these scopes (is this because of account settings or because of the scope? -- YES! make sure the g-signin span has scope for email or "openid email")
 ```
 # login_session['email'] = data['email']
 ```
